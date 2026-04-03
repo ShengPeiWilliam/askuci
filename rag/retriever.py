@@ -11,12 +11,22 @@ load_dotenv()
 CHROMA_DIR = "chroma_db"
 COLLECTION_NAME = "uci_datasets"
 
+# Module-level cache — model loads once per process
+_embeddings = None
+_vectorstore = None
+
+
+def _get_vectorstore() -> Chroma:
+    global _embeddings, _vectorstore
+    if _vectorstore is None:
+        _embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        _vectorstore = Chroma(
+            persist_directory=CHROMA_DIR,
+            embedding_function=_embeddings,
+            collection_name=COLLECTION_NAME,
+        )
+    return _vectorstore
+
 
 def get_retriever(k: int = 5):
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectorstore = Chroma(
-        persist_directory=CHROMA_DIR,
-        embedding_function=embeddings,
-        collection_name=COLLECTION_NAME,
-    )
-    return vectorstore.as_retriever(search_kwargs={"k": k})
+    return _get_vectorstore().as_retriever(search_kwargs={"k": k})
