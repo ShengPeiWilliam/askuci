@@ -4,8 +4,9 @@ Step 2 — LangChain RAG chain using GPT-4o and Chroma retriever.
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 from rag.retriever import get_retriever
 
 load_dotenv()
@@ -22,26 +23,27 @@ Question: {question}
 Answer:"""
 
 
+def _format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+
 def get_chain(k: int = 5):
     retriever = get_retriever(k=k)
     llm = ChatOpenAI(model="gpt-4o", temperature=0)
-    prompt = PromptTemplate(
-        input_variables=["context", "question"],
-        template=PROMPT_TEMPLATE,
+    prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    chain = (
+        {"context": retriever | _format_docs, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
     )
-    chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever,
-        chain_type="stuff",
-        chain_type_kwargs={"prompt": prompt},
-        return_source_documents=True,
-    )
-    return chain
+    return retriever, chain
 
 
 def query(question: str, k: int = 5) -> dict:
-    chain = get_chain(k=k)
-    result = chain.invoke({"query": question})
+    retriever, chain = get_chain(k=k)
+    answer = chain.invoke(question)
+    docs = retriever.invoke(question)
     sources = [
         {
             "name": doc.metadata.get("name"),
@@ -51,6 +53,6 @@ def query(question: str, k: int = 5) -> dict:
             "num_features": doc.metadata.get("num_features"),
             "year": doc.metadata.get("year"),
         }
-        for doc in result["source_documents"]
+        for doc in docs
     ]
-    return {"answer": result["result"], "sources": sources}
+    return {"answer": answer, "sources": sources}

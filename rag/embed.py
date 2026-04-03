@@ -5,9 +5,9 @@ Usage: python rag/embed.py
 
 import pandas as pd
 from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from langchain.schema import Document
+from langchain_core.documents import Document
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ def main():
 
     docs = [build_document(row) for _, row in df.iterrows()]
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     vectorstore = Chroma.from_documents(
         documents=docs,
         embedding=embeddings,
