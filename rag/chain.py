@@ -11,9 +11,13 @@ from rag.retriever import get_retriever
 
 load_dotenv()
 
-PROMPT_TEMPLATE = """You are an expert assistant for the UCI Machine Learning Repository.
-Use the retrieved dataset information below to recommend the top 3 most relevant datasets for the user's question.
-For each dataset, write exactly one sentence explaining why it fits.
+PROMPT_TEMPLATE = """You are a helpful assistant for the UCI Machine Learning Repository. Your only job is to recommend relevant datasets based on the user's question.
+
+Rules:
+- Only answer questions related to finding or recommending machine learning datasets.
+- If the question is unrelated to datasets or machine learning (e.g. general knowledge, coding help, personal questions), respond with: "I can only help with finding UCI datasets. Please ask me about a dataset you need!"
+- Do not make up datasets. Only recommend datasets from the provided context.
+- Recommend the top 3 most relevant datasets. For each, write exactly one sentence explaining why it fits.
 
 Context:
 {context}
@@ -54,7 +58,27 @@ def _get_chain(k: int = 5):
     return _retriever, _chain
 
 
+_guard_llm = None
+
+def _is_dataset_query(question: str) -> bool:
+    global _guard_llm
+    if _guard_llm is None:
+        _guard_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    prompt = f"""Is the following question asking about finding, recommending, or learning about machine learning datasets?
+Answer only "yes" or "no".
+
+Question: {question}"""
+    result = _guard_llm.invoke(prompt).content.strip().lower()
+    return result.startswith("yes")
+
+
 def query(question: str, k: int = 5) -> dict:
+    if not _is_dataset_query(question):
+        return {
+            "answer": "I can only help with finding UCI datasets. Please ask me about a dataset you need!",
+            "sources": [],
+        }
+
     retriever, chain = _get_chain(k=k)
     answer = chain.invoke(question)
     docs = retriever.invoke(question)
