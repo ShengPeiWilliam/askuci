@@ -1,30 +1,11 @@
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from rag.retriever import get_retriever
 
 load_dotenv()
 
-PROMPT_TEMPLATE = """You are a helpful assistant for the UCI Machine Learning Repository. Your only job is to recommend relevant datasets based on the user's question.
-
-Rules:
-- Only answer questions related to finding or recommending machine learning datasets.
-- If the question is unrelated to datasets or machine learning (e.g. general knowledge, coding help, personal questions), respond with: "I can only help with finding UCI datasets. Please ask me about a dataset you need!"
-- Do not make up datasets. Only recommend datasets from the provided context.
-- Recommend the top 5 most relevant datasets. For each, write exactly one sentence explaining why it fits.
-
-Context:
-{context}
-
-Question: {question}
-
-Answer:"""
-
-
-def _format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
+_retriever = None
+_guard_llm = None
 
 
 def _parse_abstract(page_content: str) -> str:
@@ -34,27 +15,12 @@ def _parse_abstract(page_content: str) -> str:
     return ""
 
 
-# Module-level cache — chain and retriever built once per process
-_retriever = None
-_chain = None
-
-
-def _get_chain(k: int = 5):
-    global _retriever, _chain
-    if _chain is None:
+def _get_retriever(k: int = 5):
+    global _retriever
+    if _retriever is None:
         _retriever = get_retriever(k=k)
-        llm = ChatOpenAI(model="gpt-4o", temperature=0)
-        prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-        _chain = (
-            {"context": _retriever | _format_docs, "question": RunnablePassthrough()}
-            | prompt
-            | llm
-            | StrOutputParser()
-        )
-    return _retriever, _chain
+    return _retriever
 
-
-_guard_llm = None
 
 def _is_dataset_query(question: str) -> bool:
     global _guard_llm
@@ -75,8 +41,7 @@ def query(question: str, k: int = 5) -> dict:
             "sources": [],
         }
 
-    retriever, chain = _get_chain(k=k)
-    answer = chain.invoke(question)
+    retriever = _get_retriever(k=k)
     docs = retriever.invoke(question)
     sources = [
         {
@@ -91,4 +56,4 @@ def query(question: str, k: int = 5) -> dict:
         }
         for doc in docs
     ]
-    return {"answer": answer, "sources": sources}
+    return {"answer": "", "sources": sources}
