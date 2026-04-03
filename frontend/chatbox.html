@@ -182,7 +182,9 @@
       const data = await resp.json();
       messages.lastChild.remove();
 
-      if (data.sources && data.sources.length > 0) {
+      if (!data.sources || data.sources.length === 0) {
+        appendMsg(data.answer, "bot");
+      } else if (data.sources && data.sources.length > 0) {
         appendMsg("Here are some datasets I found for you:", "bot");
 
         const cardsDiv = document.createElement("div");
