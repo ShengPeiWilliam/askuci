@@ -1,7 +1,3 @@
-"""
-Step 2 — Build retriever from persisted Chroma vectorstore.
-"""
-
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma

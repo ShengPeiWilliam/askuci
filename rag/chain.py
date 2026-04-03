@@ -1,7 +1,3 @@
-"""
-Step 2 — LangChain RAG chain using GPT-4o and Chroma retriever.
-"""
-
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate

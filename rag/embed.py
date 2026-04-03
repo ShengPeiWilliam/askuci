@@ -1,8 +1,3 @@
-"""
-Step 2 — Embed all dataset descriptions and store in Chroma.
-Usage: python rag/embed.py
-"""
-
 import pandas as pd
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings

@@ -1,8 +1,3 @@
-"""
-Step 5 — Test typical queries against the RAG pipeline.
-Usage: python tests/test_queries.py
-"""
-
 from rag.chain import query
 
 TEST_CASES = [

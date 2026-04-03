@@ -1,8 +1,3 @@
-"""
-Step 3 — FastAPI backend with /query endpoint.
-Usage: uvicorn api.main:app --reload
-"""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
