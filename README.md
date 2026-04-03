@@ -2,6 +2,10 @@
 
 A RAG-powered chatbot that recommends datasets from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/) based on natural language queries.
 
+| Dataset Recommendation | Guard (Off-topic) |
+|:---:|:---:|
+| <img src="figures/chatbox_query.png" width="480"> | <img src="figures/chatbox_guard.png" width="480"> |
+
 ## Setup
 
 ```bash
