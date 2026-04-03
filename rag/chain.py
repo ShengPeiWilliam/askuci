@@ -52,6 +52,7 @@ def query(question: str, k: int = 5) -> dict:
             "num_instances": doc.metadata.get("num_instances"),
             "num_features": doc.metadata.get("num_features"),
             "year": doc.metadata.get("year"),
+            "url": f"https://archive.ics.uci.edu/dataset/{doc.metadata.get('id')}",
         }
         for doc in docs
     ]
