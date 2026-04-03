@@ -177,6 +177,7 @@ cython_debug/
 
 # Project-specific
 chroma_db/
+demo/
 
 # Abstra
 # Abstra is an AI-powered process automation framework.
