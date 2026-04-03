@@ -40,7 +40,7 @@ Open `frontend/chatbox.html` in your browser.
 | What | Where | Default |
 |------|-------|---------|
 | Datasets retrieved per query | `api/main.py` → `k` | `5` |
-| Recommendations shown | `rag/chain.py` → prompt `"top 3"` | `3` |
+| Recommendations shown | `rag/chain.py` → prompt `"top 5"` | `5` |
 | Embedding model | `rag/embed.py` + `rag/retriever.py` | `all-MiniLM-L6-v2` |
 | LLM model | `rag/chain.py` → `ChatOpenAI(model=...)` | `gpt-4o` |
 
