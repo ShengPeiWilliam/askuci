@@ -125,6 +125,43 @@ Open `frontend/chatbox.html` in your browser. The chatbox appears in the bottom-
 }
 ```
 
+## Customization
+
+### Number of retrieved datasets
+
+In `api/main.py`, the default `k=5` controls how many datasets are retrieved from Chroma per query. Adjust via the API request:
+
+```json
+{ "question": "...", "k": 3 }
+```
+
+### Number of recommendations shown
+
+In `rag/chain.py`, edit the prompt to change how many datasets the LLM recommends:
+
+```python
+# Change "top 3" to any number
+"recommend the top 3 most relevant datasets"
+```
+
+### Embedding model
+
+In `rag/retriever.py` and `rag/embed.py`, replace `all-MiniLM-L6-v2` with any HuggingFace sentence-transformers model:
+
+```python
+HuggingFaceEmbeddings(model_name="all-mpnet-base-v2")  # higher accuracy, slower
+```
+
+> Re-run `python rag/embed.py` after changing the embedding model to rebuild the vector DB.
+
+### LLM model
+
+In `rag/chain.py`, change the OpenAI model:
+
+```python
+ChatOpenAI(model="gpt-4o-mini", temperature=0)  # cheaper, faster
+```
+
 ## Running Tests
 
 ```bash
