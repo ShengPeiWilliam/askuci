@@ -7,12 +7,15 @@ The core idea is simple: embed all 689 dataset descriptions into a vector space,
 ## Design Decisions
 
 **Why `all-MiniLM-L6-v2` instead of OpenAI embeddings?**
+
 It runs locally, costs nothing, and is fast enough to embed all 689 datasets in under a minute. For short descriptive text like dataset abstracts, the quality difference vs. a hosted embedding model is negligible. Keeping embedding local also means the vector DB can be rebuilt without any API dependency.
 
 **Why return 5 results?**
+
 Enough to surface variety without overwhelming the user. In practice, the top 1–2 results are almost always relevant; results 3–5 provide useful alternatives when the query is ambiguous. Going beyond 5 added noise without improving usefulness in informal testing.
 
 **Why a guard layer?**
+
 Without it, the retriever returns results for any query — ask "tell me a joke" and you'll get a list of datasets about humor or language. The guard (`gpt-4o-mini`) checks intent before hitting the vector DB and returns a refusal message for off-topic queries. Using `gpt-4o-mini` keeps cost low since it only classifies intent, not generates content.
 
 ## Demo
