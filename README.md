@@ -1,4 +1,4 @@
-# AskUCI
+# UCI Dataset Assistant (RAG)
 RAG-powered chatbot that recommends datasets from the UCI Machine Learning Repository based on natural language queries.
 
 ## Motivation
